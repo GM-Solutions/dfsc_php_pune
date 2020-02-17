@@ -11,9 +11,9 @@ $config['countries'] = array(
 );
 
 /* language configuration */
-$config['language'][0] = array('key' => 'en','lable' => 'English');
-$config['language'][1] = array('key' => 'hi','lable' => 'Hindi');
-$config['language'][2] = array('key' => 'ar','lable' => 'arabic');
+$config['language'][0] = array('key' => 'en','lable' => 'English  English');
+$config['language'][1] = array('key' => 'hi','lable' => 'Hindi    हिंदी');
+$config['language'][2] = array('key' => 'ar','lable' => 'Arabic   عربى');
 
 /* list of group available */
 $config['db_group']['india'] = 'default';
