@@ -43,11 +43,18 @@ class User extends REST_Controller  {
         if(!empty($group)){
 			$this->db->where('auth_group.name',  $group);
 		}
+		if($group2=="sales_executive"){
+			$grp =  array('MainCountryDealers','Dealers','ServiceAdvisors');
+			$this->db->where("(`auth_group`.`name` NOT IN('MainCountryDealers', 'Dealers', 'ServiceAdvisors') or `auth_group`.`name` is null)");
+		}
         if(!empty($username)){
 			$this->db->where('auth_user.username',$username);    
 		}
 		$this->db->like('gm_userprofile.phone_number',$mobile_no);        
         $user_dtl=  $this->db->get()->row();
+		
+		log_message('debug',print_r($this->db->last_query(),TRUE));
+		
 		log_message('debug',print_r($user_dtl,TRUE));
 		//log_message('debug', $this->db->last_query());
 		/*execute data*/
@@ -80,9 +87,9 @@ class User extends REST_Controller  {
             if (isset($user_dtl)){
                 if($user_dtl->phone_number == ("254".$mobile_no)){
                     /*send OTP */
-                    $otp = "1111";//rand(111111,999999);
+                    $otp = "898901";//rand(111111,999999);
                     $message = "OTP to login in FSC program is:".$otp;
-                    //Common::sendSMS(array('mobile_no'=>8983166667,'message'=>$message));
+                    Common::sendSMS(array('mobile_no'=>$user_dtl->phone_number,'message'=>$message));
                     
                     $op['user_id'] = $user_dtl->usrid;
                     $op['firstname'] = !empty($user_dtl->first_name) ?  $user_dtl->first_name : "";
@@ -234,11 +241,13 @@ class User extends REST_Controller  {
                     $this->db->from('auth_user');
                     $this->db->join('gm_userprofile','auth_user.id = gm_userprofile.user_id','left');
                     $this->db->join('auth_user_groups','auth_user.id = auth_user_groups.user_id','left');
+					$this->db->join('gm_salesexecutive','auth_user.id = gm_salesexecutive.user_id','left');
                     $this->db->where('auth_user.id',$user_id); 
                     $user_dtl=  $this->db->get()->row();
                     $op['employee_dtl'][0]['firstname'] = !empty($user_dtl->first_name) ?  $user_dtl->first_name : "";
                     $op['employee_dtl'][0]['lastname'] = !empty($user_dtl->last_name) ? $user_dtl->last_name :"";
                     $op['employee_dtl'][0]['mobile_no'] = !empty($user_dtl->phone_number) ? $user_dtl->phone_number :"";
+					$op['employee_dtl'][0]['user_code'] = !empty($user_dtl->sales_executive_id) ?  $user_dtl->sales_executive_id : "";
                     $op['employee_dtl'][0]['status'] = TRUE;
                 break;
             case "ServiceAdvisors":
@@ -246,16 +255,18 @@ class User extends REST_Controller  {
                     $this->db->from('auth_user');
                     $this->db->join('gm_userprofile','auth_user.id = gm_userprofile.user_id','left');
                     $this->db->join('auth_user_groups','auth_user.id = auth_user_groups.user_id','left');
+					$this->db->join('gm_serviceadvisor','auth_user.id = gm_serviceadvisor.user_id','left');
                     $this->db->where('auth_user.id',$user_id); 
                     $user_dtl=  $this->db->get()->row();
                     $op['employee_dtl'][0]['firstname'] = !empty($user_dtl->first_name) ?  $user_dtl->first_name : "";
                     $op['employee_dtl'][0]['lastname'] = !empty($user_dtl->last_name) ? $user_dtl->last_name :"";
                     $op['employee_dtl'][0]['mobile_no'] = !empty($user_dtl->phone_number) ? $user_dtl->phone_number :"";
+					$op['employee_dtl'][0]['user_code'] = !empty($user_dtl->service_advisor_id) ?  $user_dtl->service_advisor_id : "";
                     $op['employee_dtl'][0]['status'] = TRUE;
                 break;
             case "Dealers":
                 $all_employee =   array();
-                $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name');
+                $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name,sa.service_advisor_id');
                 $this->db->from('gm_serviceadvisor AS sa');
                 $this->db->join('gm_dealer AS dealer','sa.dealer_id=dealer.user_id','left');
                 $this->db->join('gm_userprofile AS profile_sa','sa.user_id=profile_sa.user_id','left');
@@ -265,12 +276,13 @@ class User extends REST_Controller  {
                 $query = $this->db->get();
 		$all_asc = ($query->num_rows() > 0)? $query->result_array():FALSE;
                 
-                $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name');
+                $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name,sa.sales_executive_id');
                 $this->db->from('gm_salesexecutive AS sa');
                 $this->db->join('gm_dealer AS dealer','sa.dealer_id=dealer.user_id','left');
                 $this->db->join('gm_userprofile AS profile_sa','sa.user_id=profile_sa.user_id','left');
                 $this->db->join('auth_user AS sa_au','sa_au.id=profile_sa.user_id','left');                
                 $this->db->where('dealer.user_id',$user_id);
+				$this->db->where('sa.status','Y');
                 $query1 = $this->db->get();
 		$all_exec = ($query1->num_rows() > 0)? $query1->result_array():FALSE;
                 //gm_salesexecutive
@@ -281,6 +293,7 @@ class User extends REST_Controller  {
                     $all_employee[$i]['firstname']=$value['first_name'];
                     $all_employee[$i]['lastname']=$value['last_name'];
                     $all_employee[$i]['mobile_no']=$value['phone_number'];
+					$all_employee[$i]['user_code']=$value['service_advisor_id'];
                     $all_employee[$i]['status'] = TRUE;
                     $i++;
                 }}
@@ -289,6 +302,7 @@ class User extends REST_Controller  {
                     $all_employee[$i]['firstname']=$value['first_name'];
                     $all_employee[$i]['lastname']=$value['last_name'];
                     $all_employee[$i]['mobile_no']=$value['phone_number'];
+					$all_employee[$i]['user_code']=$value['sales_executive_id'];
                     $all_employee[$i]['status'] = TRUE;
                     $i++;
                 }}
@@ -297,7 +311,7 @@ class User extends REST_Controller  {
                 break;
                 case "MainCountryDealers":
                     $all_employee =   array();
-                $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name');
+                $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name,sa.service_advisor_id');
                 $this->db->from('gm_serviceadvisor AS sa');
                 $this->db->join('gm_maincountrydealer AS dealer','sa.main_country_dealer_id=dealer.user_id','left');
                 $this->db->join('gm_userprofile AS profile_sa','sa.user_id=profile_sa.user_id','left');
@@ -307,7 +321,7 @@ class User extends REST_Controller  {
                 $query = $this->db->get();
 		$all_asc = ($query->num_rows() > 0)? $query->result_array():FALSE;
                 
-                $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name');
+                $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name,sa.sales_executive_id');
                 $this->db->from('gm_salesexecutive AS sa');
                 $this->db->join('gm_maincountrydealer AS dealer','sa.main_country_dealer_id=dealer.user_id','left');
                 $this->db->join('gm_userprofile AS profile_sa','sa.user_id=profile_sa.user_id','left');
@@ -323,6 +337,7 @@ class User extends REST_Controller  {
                     $all_employee[$i]['firstname']=$value['first_name'];
                     $all_employee[$i]['lastname']=$value['last_name'];
                     $all_employee[$i]['mobile_no']=$value['phone_number'];
+					$all_employee[$i]['user_code']=$value['service_advisor_id'];
                     $all_employee[$i]['status'] = TRUE;
                     $i++;
                 }}
@@ -331,6 +346,7 @@ class User extends REST_Controller  {
                     $all_employee[$i]['firstname']=$value['first_name'];
                     $all_employee[$i]['lastname']=$value['last_name'];
                     $all_employee[$i]['mobile_no']=$value['phone_number'];
+					$all_employee[$i]['user_code']=$value['sales_executive_id'];
                     $all_employee[$i]['status'] = TRUE;
                     $i++;
                 }}

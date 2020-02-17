@@ -19,10 +19,8 @@ class User extends REST_Controller  {
         $username = $this->post('username');
         $mobile_no = $this->post('mobile_no');
         $role = $this->post('role');
-        $group = $group2 = "";
-		
 		log_message('debug',print_r($this->post(),TRUE));
-		
+        $group = $group2 = "";
         switch ($role) {
             case "main_country_dealer": $group = "MainCountryDealers"; break;
             case "dealer": $group = "Dealers"; break;
@@ -30,7 +28,7 @@ class User extends REST_Controller  {
             case "sales_executive": $group = ""; $group2="sales_executive"; break;
 
         }
-            if(empty($mobile_no) || empty($role)){
+            if(empty($mobile_no) || empty($mobile_no) || empty($role)){
                 $op['status']= FALSE;
                 $op['message']= "Please enter valid details";
                 $this->set_response($op, REST_Controller::HTTP_ACCEPTED); 
@@ -55,9 +53,13 @@ class User extends REST_Controller  {
 		$this->db->like('gm_userprofile.phone_number',$mobile_no);        
         $user_dtl=  $this->db->get()->row();
 		
+		log_message('debug',print_r($this->db->last_query(),TRUE));
+		
 		log_message('debug',print_r($user_dtl,TRUE));
-		/*
-         if(!empty($group)){
+		log_message('debug', $this->db->last_query());
+		/*execute data*/
+		
+      /*   if(!empty($group)){
         $this->db->select('*, auth_user.id AS usrid');
         $this->db->from('auth_user');
         $this->db->join('gm_userprofile','auth_user.id = gm_userprofile.user_id','left');
@@ -83,7 +85,7 @@ class User extends REST_Controller  {
             return TRUE;
          }*/
             if (isset($user_dtl)){
-                if($user_dtl->phone_number == ("256".$mobile_no)){
+                if($user_dtl->phone_number == ("880".$mobile_no)){
                     /*send OTP */
                     $otp = "898901";//rand(111111,999999);
                     $message = "OTP to login in FSC program is:".$otp;
@@ -121,8 +123,11 @@ class User extends REST_Controller  {
                 
                 $s_menu[1]['key']='sales_executive_registration';
                 $s_menu[1]['value']='Sales Executive Registration';                
-                
-                $menu['side_menu']=array();
+               	$s_menu =  array();
+		$s_menu[0]['key']='service_count_report';
+                $s_menu[0]['value']='Service Report';   
+
+                $menu['side_menu']=$s_menu;
                 
                 $d_menu[0]['key']='search_customer_detail';
                 $d_menu[0]['value']='Search Customer';
@@ -139,8 +144,8 @@ class User extends REST_Controller  {
                 $d_menu[4]['key']='customer_registration';
                 $d_menu[4]['value']='Customer Registration';
                 
-                $d_menu[5]['key']='rider_registration';
-                $d_menu[5]['value']='Rider Registration';
+                /*$d_menu[5]['key']='rider_registration';
+                $d_menu[5]['value']='Rider Registration';*/
                 
                 $menu['dashboard']=$d_menu;
                 break;
@@ -151,8 +156,11 @@ class User extends REST_Controller  {
                 
                 $s_menu[1]['key']='sales_executive_registration';
                 $s_menu[1]['value']='Sales Executive Registration';                
-                
-                $menu['side_menu']=array();
+               $s_menu =  array();
+		$s_menu[0]['key']='service_count_report';
+                $s_menu[0]['value']='Service Report';   
+ 
+                $menu['side_menu']=$s_menu;
                 
                 $d_menu[0]['key']='search_customer_detail';
                 $d_menu[0]['value']='Search Customer';
@@ -169,8 +177,8 @@ class User extends REST_Controller  {
                 $d_menu[4]['key']='customer_registration';
                 $d_menu[4]['value']='Customer Registration';
                 
-                $d_menu[5]['key']='rider_registration';
-                $d_menu[5]['value']='Rider Registration';
+                /*$d_menu[5]['key']='rider_registration';
+                $d_menu[5]['value']='Rider Registration';*/
                 
                 $menu['dashboard']=$d_menu;
                 break;
@@ -194,8 +202,8 @@ class User extends REST_Controller  {
                 $d_menu[4]['key']='customer_registration';
                 $d_menu[4]['value']='Customer Registration';
                 
-                $d_menu[5]['key']='rider_registration';
-                $d_menu[5]['value']='Rider Registration';
+               /* $d_menu[5]['key']='rider_registration';
+                $d_menu[5]['value']='Rider Registration';*/
                 
                 $menu['dashboard']=$d_menu;
                 break;
@@ -222,9 +230,10 @@ class User extends REST_Controller  {
     
     public function service_man_list_post() {
         $group = $this->post('group');
+//	echo $group = $this->post('country');
         $mobile_no = $this->post('mobile_no');
         $user_id = $this->post('user_id');
-        $menu_name = $this->post('menu_name');
+        $menu_name = $this->post('menu_name'); 
         if(empty($group) || empty($mobile_no) || empty($user_id)){
             $this->set_response([
                     'status'=> FALSE,
@@ -280,6 +289,7 @@ class User extends REST_Controller  {
                 $this->db->join('gm_userprofile AS profile_sa','sa.user_id=profile_sa.user_id','left');
                 $this->db->join('auth_user AS sa_au','sa_au.id=profile_sa.user_id','left');                
                 $this->db->where('dealer.user_id',$user_id);
+				$this->db->where('sa.status','Y');
                 $query1 = $this->db->get();
 		$all_exec = ($query1->num_rows() > 0)? $query1->result_array():FALSE;
                 //gm_salesexecutive
@@ -317,7 +327,7 @@ class User extends REST_Controller  {
                 $this->db->where('dealer.user_id',$user_id);
                 $query = $this->db->get();
 		$all_asc = ($query->num_rows() > 0)? $query->result_array():FALSE;
-                
+//          echo $this->db->last_query(); die;      
                 $this->db->select('profile_sa.phone_number,sa_au.first_name,sa_au.last_name,sa.sales_executive_id');
                 $this->db->from('gm_salesexecutive AS sa');
                 $this->db->join('gm_maincountrydealer AS dealer','sa.main_country_dealer_id=dealer.user_id','left');
@@ -350,6 +360,9 @@ class User extends REST_Controller  {
                 $op['employee_dtl']=$all_employee;
                     break;
         } 
+//echo  $this->db->last_query(); die;
+ log_message('debug',print_r($op,TRUE));
+log_message('debug',print_r($_POST,TRUE));
 //        die;
         $op['count']= count($op['employee_dtl']);
         $this->set_response($op, REST_Controller::HTTP_ACCEPTED); 
@@ -401,3 +414,4 @@ class User extends REST_Controller  {
     }
     
 }
+

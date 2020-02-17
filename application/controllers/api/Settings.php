@@ -14,8 +14,16 @@ class Settings extends REST_Controller {
     public function countries_get()
     {
         $op =  array();
+	$i=0;
+	$language = $this->config->item('language');
+        foreach ($language as $key => $value) {
+            $op['language'][$i]['id'] = $value['key'];
+            $op['language'][$i]['value'] = $value['lable'];
+	$i++;
+        }
+$i =0;
         $all_group = $this->config->item('countries');
-        $i=0;
+
         foreach ($all_group as $key => $value) {
             $op['countries'][$i]['id'] = $value['key'];
             $op['countries'][$i]['value'] = $value['lable'];

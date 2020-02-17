@@ -12,7 +12,9 @@ class Transaction extends REST_Controller {
     }
 
     public function search_customer_post() {
+        $country_dtl = $this->config->item('countries');
         $data =  array();
+        $country = $this->post('country');
         $search = $this->post('search');
         $filter = $this->post('filter');
         $now = new DateTime();
@@ -33,13 +35,19 @@ class Transaction extends REST_Controller {
                 $filter_data['customer_phone_number !='] = "";
                 break;
             case 'mobile_no': 
-                
+                $numlength = strlen((string)$search);
+                    if($numlength == $country_dtl[$country]['mobile_validation']){
+                            $search = $country_dtl[$country]['code']."".$search;
+                            log_message('debug',print_r($search,TRUE));
+                    }
+                    log_message('debug',print_r($country_dtl[$country]['mobile_validation'],TRUE));
                 $filter_data['customer_id !='] = "";
                 $filter_data['customer_phone_number'] = $search;
                 break;
         }
 
         $product_info = $this->Users->select_info('gm_productdata', $filter_data);
+        log_message('debug',print_r($product_info,TRUE));
         /*((1, 'Unused'), (2, 'Closed'),
          * ( 3, 'Expired'), (4, 'In Progress'), 
          * ( 5, 'Exceeds Limit'), (6, 'Closed Old Fsc'),(7,'Without UCN'))*/
@@ -83,13 +91,14 @@ class Transaction extends REST_Controller {
         $data['status']=FALSE;
         $data['message']="No customer details found";
         }
+		
 
         $this->set_response($data, REST_Controller::HTTP_ACCEPTED); 
     }
     public function service_status_post() {
-		$country_dtl = $this->config->item('countries');
+        $country_dtl = $this->config->item('countries');
         $data =  array();
-		$country = $this->post('country');
+        $country = $this->post('country');
         $search = $this->post('search');
         $filter = $this->post('filter');
         $now = new DateTime();
@@ -199,8 +208,9 @@ class Transaction extends REST_Controller {
 				return true;
 			}
 		}
-        log_message('debug',print_r($product_info,TRUE));
-		if(isset($product_info)){
+        log_message('debug',print_r($vehical_no,TRUE));
+        if(isset($product_info)){
+			
             $vehical_no = isset($product_info->veh_reg_no) ? $product_info->veh_reg_no : $veh_reg_no ;
             $curl_url = $this->config->item('curl_api');
             $ch = curl_init();
@@ -238,7 +248,7 @@ class Transaction extends REST_Controller {
     
     public function customer_registration_post() {
 		$country_dtl = $this->config->item('countries');
-		
+
         $country = $this->post('country');
         $veh_reg_no = $this->post('veh_reg_no');
         $mobile_no = $this->post('mobile_no'); /* App User mobile No */
@@ -253,7 +263,9 @@ class Transaction extends REST_Controller {
 		}
 		
 
-		log_message('debug',print_r($this->post(),TRUE));
+		log_message('debug',print_r($purchase_date,TRUE));
+		
+		
         
         if(empty($veh_reg_no) || empty($owner_mobile_no) || empty($owner_name) || empty($purchase_date)){
             $this->set_response([
@@ -270,7 +282,7 @@ class Transaction extends REST_Controller {
             curl_setopt($ch, CURLOPT_URL,$curl_url[$country]."?format=json");
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS,
-                        "phoneNumber=".$mobile_no."&text=O ".$veh_reg_no." ".$owner_name." ".$owner_mobile_no." ".$purchase_date." 254");
+                        "phoneNumber=".$mobile_no."&text=O ".$veh_reg_no." ".$owner_name." ".$owner_mobile_no." ".$purchase_date." ".$country_dtl[$country]['code']);
 
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);            
             $server_output = curl_exec ($ch);
@@ -307,13 +319,12 @@ class Transaction extends REST_Controller {
         $mobile_no = $this->post('mobile_no'); /* App User mobile No */
         $rider_mobile_no = $this->post('rider_mobile_no'); /* Customer mobile No */
         $rider_name = $this->post('rider_name');
-		
+        
 		$numlength = strlen((string)$rider_mobile_no);
 		if($numlength == $country_dtl[$country]['mobile_validation']){
 			$rider_mobile_no = $country_dtl[$country]['code']."".$rider_mobile_no;
 		}
 		
-        
         
         if(empty($veh_reg_no) || empty($rider_mobile_no) || empty($rider_name)){
             $this->set_response([
