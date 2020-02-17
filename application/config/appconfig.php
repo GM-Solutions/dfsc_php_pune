@@ -7,7 +7,7 @@ $config['countries'] = array(
     'uganda' => array('key' => 'uganda', 'lable' => 'Uganda (+256)', 'mobile_validation' => 9, 'flag' => 'uganda.png', 'base_url' => 'uganda', 'code' => '256'),
     'kenya' => array('key' => 'kenya', 'lable' => 'Kenya (+254)', 'mobile_validation' => 9, 'flag' => 'kenya.png', 'base_url' => 'kenya', 'code' => '254'),
     'bangladesh' => array('key' => 'bangladesh', 'lable' => 'Bangladesh (+880)', 'mobile_validation' => 10, 'flag' => 'bangladesh.png', 'base_url' => 'bangladesh', 'code' => '880'),
-    'egypt' => array('key' => 'egypt', 'lable' => 'Egypt (+20)', 'mobile_validation' => 10, 'flag' => 'egypt.png', 'base_url' => 'egypt', 'code' => '20'),
+    'egypt' => array('key' => 'egypt', 'lable' => 'Egypt (+20)', 'mobile_validation' => 9, 'flag' => 'egypt.png', 'base_url' => 'egypt', 'code' => '256'),
 );
 
 /* language configuration */
