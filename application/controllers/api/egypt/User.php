@@ -83,7 +83,7 @@ class User extends REST_Controller  {
             return TRUE;
          }*/
             if (isset($user_dtl)){
-                if($user_dtl->phone_number == ("256".$mobile_no)){
+                if($user_dtl->phone_number == ("20".$mobile_no)){
                     /*send OTP */
                     $otp = "898901";//rand(111111,999999);
                     $message = "OTP to login in FSC program is:".$otp;
