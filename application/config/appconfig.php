@@ -7,7 +7,7 @@ $config['countries'] = array(
     'uganda' => array('key' => 'uganda', 'lable' => 'Uganda (+256)', 'mobile_validation' => 9, 'flag' => 'uganda.png', 'base_url' => 'uganda', 'code' => '256'),
     'kenya' => array('key' => 'kenya', 'lable' => 'Kenya (+254)', 'mobile_validation' => 9, 'flag' => 'kenya.png', 'base_url' => 'kenya', 'code' => '254'),
     'bangladesh' => array('key' => 'bangladesh', 'lable' => 'Bangladesh (+880)', 'mobile_validation' => 10, 'flag' => 'bangladesh.png', 'base_url' => 'bangladesh', 'code' => '880'),
-    'egypt' => array('key' => 'egypt', 'lable' => 'Egypt (+20)', 'mobile_validation' => 9, 'flag' => 'egypt.png', 'base_url' => 'egypt', 'code' => '256'),
+    'egypt' => array('key' => 'egypt', 'lable' => 'Egypt (+20)', 'mobile_validation' => 10, 'flag' => 'egypt.png', 'base_url' => 'egypt', 'code' => '20'),
 );
 
 /* language configuration */
@@ -80,7 +80,7 @@ if ($setting_type == "local") {
     $config['curl_api_custom']['india'] = "http://local.bajaj.gladminds.co:8000/aftersell/register/register_customer_api/";    
     $config['curl_api']['uganda'] = "http://127.0.0.1:8000/v1/messages";
     $config['curl_api']['kenya'] = "http://127.0.0.1:8000/v1/messages";
-    $config['curl_api']['egypt'] = "http://127.0.0.1:8000/v1/messages";
+    $config['curl_api']['egypt'] = "http://54.158.156.249/v1/messages";
 }
 
 //if ($setting_type == "dev") {
@@ -96,6 +96,7 @@ if ($setting_type == "qa") {
     $config['curl_api']['uganda'] = "http://qa.bajajib.gladminds.co/v1/messages";
     $config['curl_api']['kenya'] = "http://kfsc-qa-web.us-east-1.elasticbeanstalk.com/v1/messages";
     $config['curl_api']['bangladesh'] = "http://qabfsc.gladminds.co/v1/messages";
+    $config['curl_api']['egypt'] = "http://54.158.156.249/v1/messages";
 }
 
 if ($setting_type == "production") {

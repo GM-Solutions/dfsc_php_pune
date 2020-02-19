@@ -405,5 +405,114 @@ class Transaction extends REST_Controller {
             curl_close ($ch);
         
     }
+    public function report_service_count_post() {
+        $country = $this->post('country');
+        $user_id = $this->post('user_id');
+        $group = $this->post('group');
+        $date_from = $this->post('date_from');
+        $date_to = $this->post('date_to');
+        
+            if(
+                empty($country) || 
+                empty($user_id) || 
+                empty($group) || 
+                empty($date_from) || 
+                empty($date_to) || 
+                empty($country) 
+                ){
+                    $this->set_response([
+                           'status'=> FALSE,
+                           'message'=>"please provide all details"                    
+                       ], REST_Controller::HTTP_ACCEPTED);   
+               return TRUE;
+                }
+                
+                /* check  for user id is dealer or MCD*/
+                /*for dealer*/
+                $delaers_info = $this->Users->select_info('gm_dealer', array('user_id'=>$user_id));
+                if($delaers_info){
+                    $query = $this->db->query("(SELECT 
+                        COUNT(*) AS count, 'register_customer_count' AS count_type
+                    FROM
+                        gm_productdata AS pd
+                    WHERE
+                        pd.customer_registration_by_user_id = ".$user_id."
+                            AND customer_registration_date BETWEEN '".$date_from."' AND '".$date_to."') UNION (SELECT 
+                        COUNT(*) AS count, 'check_coupon_count' AS count_type
+                    FROM
+                        gm_coupondata AS cd
+                            LEFT JOIN
+                        gm_serviceadvisor AS sa ON sa.user_id = cd.service_advisor_id
+                    WHERE
+                        cd.actual_service_date BETWEEN '".$date_from."' AND '".$date_to."'
+                            AND sa.dealer_id = ".$user_id."
+                            AND sa.main_country_dealer_id IS NULL) UNION (SELECT 
+                        COUNT(*) AS count, 'close_coupon_count' AS count_type
+                    FROM
+                        gm_coupondata AS cd
+                            LEFT JOIN
+                        gm_serviceadvisor AS sa ON sa.user_id = cd.service_advisor_id
+                    WHERE
+                        cd.closed_date BETWEEN '".$date_from."' AND '".$date_to."'
+                            AND sa.dealer_id = ".$user_id."
+                            AND sa.main_country_dealer_id IS NULL);");
+                     $dlr_info = $query->result_array();
+                     if(count($dlr_info)){
+                         $this->set_response([
+                    'status'=> TRUE,
+                    'data'=>$dlr_info                    
+                    ], REST_Controller::HTTP_ACCEPTED); 
+                     }else{
+                         $this->set_response([
+                    'status'=> FALSE,
+                    'message'=>"Invalid user"                    
+                    ], REST_Controller::HTTP_ACCEPTED);
+                     }
+                     return TRUE;
+                }
+                /*for main country dealer */
+                $mcdelaers_info = $this->Users->select_info('gm_maincountrydealer', array('user_id'=>$user_id));
+                if($mcdelaers_info){
+                    $query = $this->db->query("(SELECT 
+                        COUNT(*) AS count, 'register_customer_count' AS count_type
+                    FROM
+                        gm_productdata AS pd
+                    WHERE
+                        pd.customer_registration_by_user_id = ".$user_id."
+                            AND customer_registration_date BETWEEN '".$date_from."' AND '".$date_to."') UNION (SELECT 
+                        COUNT(*) AS count, 'check_coupon_count' AS count_type
+                    FROM
+                        gm_coupondata AS cd
+                            LEFT JOIN
+                        gm_serviceadvisor AS sa ON sa.user_id = cd.service_advisor_id
+                    WHERE
+                        cd.actual_service_date BETWEEN '".$date_from."' AND '".$date_to."'
+                            AND sa.main_country_dealer_id = ".$user_id."
+                            AND sa.dealer_id IS NULL) UNION (SELECT 
+                        COUNT(*) AS count, 'close_coupon_count' AS count_type
+                    FROM
+                        gm_coupondata AS cd
+                            LEFT JOIN
+                        gm_serviceadvisor AS sa ON sa.user_id = cd.service_advisor_id
+                    WHERE
+                        cd.closed_date BETWEEN '".$date_from."' AND '".$date_to."'
+                            AND sa.main_country_dealer_id = ".$user_id."
+                            AND sa.dealer_id IS NULL);");
+                     $dlr_info = $query->result_array();
+                     if(count($dlr_info)){
+                         $this->set_response([
+                    'status'=> TRUE,
+                    'data'=>$dlr_info                    
+                    ], REST_Controller::HTTP_ACCEPTED); 
+                     }
+                }else{
+                    
+                    $this->set_response([
+                    'status'=> FALSE,
+                    'message'=>"Invalid user"                    
+                    ], REST_Controller::HTTP_ACCEPTED); 
+                     
+                }
+    }
 
 }

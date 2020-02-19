@@ -166,10 +166,10 @@ $db['bangladesh'] = array(
 
 $db['egypt'] = array(
         'dsn'   => '',
-        'hostname' => 'gladminds-qa-2.chnnvvffqwop.us-east-1.rds.amazonaws.com',
+        'hostname' => 'gladminds-prod.chnnvvffqwop.us-east-1.rds.amazonaws.com',
         'username' => 'gladminds',
-        'password' => 'gladmindsqa2',
-        'database' => 'bajajib',
+        'password' => 'BlueHeavenAtGM',
+        'database' => 'efsc',
         'dbdriver' => 'mysqli',
         'dbprefix' => '',
         'pconnect' => FALSE,
