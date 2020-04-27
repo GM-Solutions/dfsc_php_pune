@@ -1,5 +1,6 @@
 <?php
-
+ini_set('max_execution_time', 0);
+ini_set('memory_limit','5000M');
 defined('BASEPATH') OR exit('No direct script access allowed');
 /* controler for india */
 
@@ -12,7 +13,9 @@ class Transaction extends REST_Controller {
     }
 
     public function search_customer_post() {
+		
         $country_dtl = $this->config->item('countries');
+		
         $data =  array();
         $country = $this->post('country');
         $search = $this->post('search');
@@ -20,7 +23,9 @@ class Transaction extends REST_Controller {
         $now = new DateTime();
         $now->setTimezone(new DateTimezone('Africa/Kampala'));
         $filter_data = array();
+		
         switch ($filter) {
+			
             case 'chassis': 
                 $filter_data['product_id'] = $search;
                 
@@ -32,12 +37,14 @@ class Transaction extends REST_Controller {
             case 'customer_id':
                 
                 $filter_data['customer_id'] = $search;
-                $filter_data['customer_phone_number !='] = "";
+                //$filter_data['customer_phone_number !='] = "";
                 break;
-            case 'mobile_no': 
-                $numlength = strlen((string)$search);
+            case 'mobile_no':
+				//print_r($country_dtl[$country]['code']);
+              $numlength = strlen((string)$search);
+			//	echo $country_dtl[$country]['mobile_validation'];
                     if($numlength == $country_dtl[$country]['mobile_validation']){
-                            $search = $country_dtl[$country]['code']."".$search;
+                           $search = $country_dtl[$country]['code']."".$search;
                             log_message('debug',print_r($search,TRUE));
                     }
                     log_message('debug',print_r($country_dtl[$country]['mobile_validation'],TRUE));
@@ -45,8 +52,8 @@ class Transaction extends REST_Controller {
                 $filter_data['customer_phone_number'] = $search;
                 break;
         }
-
         $product_info = $this->Users->select_info('gm_productdata', $filter_data);
+		//echo $this->db->last_query(); die;
         log_message('debug',print_r($product_info,TRUE));
         /*((1, 'Unused'), (2, 'Closed'),
          * ( 3, 'Expired'), (4, 'In Progress'), 
@@ -247,13 +254,15 @@ class Transaction extends REST_Controller {
     }
     
     public function customer_registration_post() {
+log_message('debug',print_r($this->post(),TRUE));
 		$country_dtl = $this->config->item('countries');
 
         $country = $this->post('country');
         $veh_reg_no = $this->post('veh_reg_no');
         $mobile_no = $this->post('mobile_no'); /* App User mobile No */
         $owner_mobile_no = $this->post('owner_mobile_no'); /* Customer mobile No */
-        $owner_name = $this->post('owner_name');        
+        $name = trim($this->post('owner_name')); 
+		$owner_name = str_replace(' ', '_', $name); 
         $purchase_date = $this->post('purchase_date');		
 		$purchase_date = str_replace('/','-',$purchase_date);
 		
@@ -282,7 +291,7 @@ class Transaction extends REST_Controller {
             curl_setopt($ch, CURLOPT_URL,$curl_url[$country]."?format=json");
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS,
-                        "phoneNumber=".$mobile_no."&text=O ".$veh_reg_no." ".$owner_name." ".$owner_mobile_no." ".$purchase_date." ".$country_dtl[$country]['code']);
+                        "phoneNumber=".$mobile_no."&text=O ".$veh_reg_no." ".$owner_name." ".$owner_mobile_no." ".$purchase_date." 001");
 
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);            
             $server_output = curl_exec ($ch);

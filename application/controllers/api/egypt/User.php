@@ -56,6 +56,7 @@ class User extends REST_Controller  {
         $user_dtl=  $this->db->get()->row();
 		
 		log_message('debug',print_r($user_dtl,TRUE));
+log_message('debug',print_r($this->db->last_query(),true));
 		/*
          if(!empty($group)){
         $this->db->select('*, auth_user.id AS usrid');
