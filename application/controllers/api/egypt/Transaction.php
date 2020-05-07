@@ -524,7 +524,7 @@ log_message('debug',print_r($this->post(),TRUE));
                 }
     }
 
-    public function vehical_models_get() {
+    public function vehical_models_post() {
         $data =$op=  array();
         $product_info = $this->Users->select_info('gm_vehicle_models', array('status'=>1));
         if($product_info){
