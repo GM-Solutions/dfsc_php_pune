@@ -540,4 +540,58 @@ log_message('debug',print_r($this->post(),TRUE));
         }
         $this->set_response($op, REST_Controller::HTTP_ACCEPTED); 
     }
+    
+    public function region_detail_post() {
+        $data_final =$op= $raw_data= array();
+        $this->db->select('c.city');
+        $this->db->select('c.city_code');
+        $this->db->select('c.id as city_id');
+        $this->db->select('g.governorate_name');
+        $this->db->select('g.id AS governorate_id');
+        $this->db->select('t.territory');
+        $this->db->select('t.id AS territory_id');
+        
+        $this->db->from('gm_city AS c');
+        $this->db->join('gm_governorate g','g.id=c.governorate_id','left');
+        $this->db->join('gm_territory t','t.id=g.region_id','left');
+        
+        $query = $this->db->get();
+        $address_raw =  ($query->num_rows() > 0)? $query->result_array():FALSE;
+//        print_r($address_raw);
+        if($address_raw){
+            foreach ($address_raw as $key => $value) {
+                $raw_data['territory'][$value['territory_id']]['territory_name'] = $value['territory'];
+                $raw_data['territory'][$value['territory_id']]['territory_id'] = $value['territory_id'];
+                $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['governorate_id']= $value['governorate_id'];
+                $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['governorate_name']= $value['governorate_id'];
+                $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['city'][$value['city_id']]['city_code']= $value['city_code'];
+                $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['city'][$value['city_id']]['city']= $value['city'];
+            }
+            $i =$j=$k =0;
+            foreach ($raw_data['territory'] as $key => $value) {
+                $data_final['territory'][$i]['territory_name'] =$value['territory_name'];
+                $data_final['territory'][$i]['territory_id'] =$value['territory_id'];
+                $j =0;
+                foreach ($value['governorate'] as $key_g => $value_g) {
+//                    print_r($value_g);
+                    $data_final['territory'][$i]['governorate'][$j]['governorate_id'] =$value_g['governorate_id'];
+                    $data_final['territory'][$i]['governorate'][$j]['governorate_name'] =$value_g['governorate_name'];
+                    $k=0;
+                    foreach ($value_g['city'] as $key_c => $value_c) {
+                        $data_final['territory'][$i]['governorate'][$j]['city'][$k]['city_code'] =$value_c['city_code'];
+                        $data_final['territory'][$i]['governorate'][$j]['city'][$k]['city'] =$value_c['city'];
+                        $k++;
+                    }
+                    $j++;
+                }
+                $i++;
+            }
+            $op['status'] = true;
+            $op['data'] = $data_final;
+        } else {
+            $op['status']=false;
+            $op['message']="No city availabble";
+        }
+        $this->set_response($op, REST_Controller::HTTP_ACCEPTED); 
+    }
 }
