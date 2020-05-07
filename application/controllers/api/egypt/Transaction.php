@@ -563,7 +563,7 @@ log_message('debug',print_r($this->post(),TRUE));
                 $raw_data['territory'][$value['territory_id']]['territory_name'] = $value['territory'];
                 $raw_data['territory'][$value['territory_id']]['territory_id'] = $value['territory_id'];
                 $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['governorate_id']= $value['governorate_id'];
-                $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['governorate_name']= $value['governorate_id'];
+                $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['governorate_name']= $value['governorate_name'];
                 $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['city'][$value['city_id']]['city_code']= $value['city_code'];
                 $raw_data['territory'][$value['territory_id']]['governorate'][$value['governorate_id']]['city'][$value['city_id']]['city']= $value['city'];
             }
