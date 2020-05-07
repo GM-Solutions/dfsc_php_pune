@@ -257,6 +257,8 @@ class Transaction extends REST_Controller {
 log_message('debug',print_r($this->post(),TRUE));
 		$country_dtl = $this->config->item('countries');
 
+        $model_number = $this->post('model_code');
+        $city_code = $this->post('city_code');
         $country = $this->post('country');
         $veh_reg_no = $this->post('veh_reg_no');
         $mobile_no = $this->post('mobile_no'); /* App User mobile No */
@@ -291,7 +293,7 @@ log_message('debug',print_r($this->post(),TRUE));
             curl_setopt($ch, CURLOPT_URL,$curl_url[$country]."?format=json");
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS,
-                        "phoneNumber=".$mobile_no."&text=O ".$veh_reg_no." ".$owner_name." ".$owner_mobile_no." ".$purchase_date." 001");
+                        "phoneNumber=".$mobile_no."&text=O ".$veh_reg_no." ".$owner_name." ".$owner_mobile_no." ".$purchase_date." ".$city_code." ".$model_number);
 
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);            
             $server_output = curl_exec ($ch);
