@@ -524,4 +524,20 @@ log_message('debug',print_r($this->post(),TRUE));
                 }
     }
 
+    public function vehical_models_get() {
+        $data =$op=  array();
+        $product_info = $this->Users->select_info('gm_vehicle_models', array('status'=>1));
+        if($product_info){
+            foreach ($product_info as $key => $value) {
+               $data[$key]['model_code']=$value['model_name']; 
+               $data[$key]['model_value']=$value['model_description']; 
+            }
+            $op['status'] = true;
+            $op['data'] = $data;
+        }else{
+            $op['status'] = false;
+            $op['message'] = "No model found";
+        }
+        $this->set_response($op, REST_Controller::HTTP_ACCEPTED); 
+    }
 }
