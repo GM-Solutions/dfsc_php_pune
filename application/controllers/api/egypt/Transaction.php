@@ -68,6 +68,36 @@ class Transaction extends REST_Controller {
                 $data['customer_details'][$key]['customer_name'] = !empty($value['customer_name']) ? $value['customer_name'] : "";
                 $data['customer_details'][$key]['register_customer'] = !empty($value['customer_id']) ? FALSE :TRUE;
                 $product_id = $value['id'];
+                /*get vehical model details*/
+                if(!empty($value['vehicle_model_id'])){
+                $model_info = $this->Users->select_info('gm_vehicle_models', array('id'=>$value['vehicle_model_id']));
+                    if($model_info){
+                        $data['customer_details'][$key]['model_code']=$model_info[0]['model_name']; 
+                    }
+                }
+                /*get vehical model details*/
+                if(!empty($value['city_details_id'])){
+                    $this->db->select('c.city');
+                    $this->db->select('c.city_code');
+                    $this->db->select('c.id as city_id');
+                    $this->db->select('g.governorate_name');
+                    $this->db->select('g.id AS governorate_id');
+                    $this->db->select('t.territory');
+                    $this->db->select('t.id AS territory_id');
+
+                    $this->db->from('gm_city AS c');
+                    $this->db->join('gm_governorate g','g.id=c.governorate_id','left');
+                    $this->db->join('gm_territory t','t.id=g.region_id','left');
+                    $this->db->where('c.id',$value['city_details_id']);
+
+                    $query = $this->db->get();
+                    $address_raw =  ($query->num_rows() > 0)? $query->result_array():FALSE;
+                    if($address_raw){
+                        $data['customer_details'][$key]['address_details']['city_code']=$address_raw[0]['city_code']; 
+                        $data['customer_details'][$key]['address_details']['governorate_id']=$address_raw[0]['governorate_id']; 
+                        $data['customer_details'][$key]['address_details']['territory_id']=$address_raw[0]['territory_id']; 
+                    }
+                }
                 $coupon_info =$this->Users->select_info('gm_coupondata', array('product_id'=>$product_id));
                
                 foreach ($coupon_info as $key1 => $value1) {
