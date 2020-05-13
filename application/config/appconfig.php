@@ -42,7 +42,7 @@ $config['role_menu']['bangladesh'][1] = array('key'=>'dealer','value'=>'Dealers'
 $config['role_menu']['bangladesh'][2] = array('key'=>'service_advisor','value'=>'Service Advisors','username'=>FALSE);
 $config['role_menu']['bangladesh'][3] = array('key'=>'sales_executive','value'=>'Sales Executive','username'=>FALSE);
 
-$config['role_menu']['egypt'][0] = array('key'=>'main_country_dealer','value'=>'Main Country Dealer','username'=>TRUE);
+$config['role_menu']['egypt'][0] = array('key'=>'main_country_dealer','value'=>'Distributor','username'=>TRUE);
 $config['role_menu']['egypt'][1] = array('key'=>'dealer','value'=>'Dealers','username'=>TRUE);
 $config['role_menu']['egypt'][2] = array('key'=>'service_advisor','value'=>'Service Advisors','username'=>FALSE);
 $config['role_menu']['egypt'][3] = array('key'=>'sales_executive','value'=>'Sales Executive','username'=>FALSE);
